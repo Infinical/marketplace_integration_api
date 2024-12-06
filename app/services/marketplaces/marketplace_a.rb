@@ -2,14 +2,16 @@ module Marketplaces
   class MarketplaceA < BaseMarketplace
     def initialize
       super
-      @connection.url_prefix = "http://localhost:3001/api"
+      @connection.url_prefix = "http://localhost:3001/api/"
     end
 
     def create_listing(params)
-      response = make_request(:post, "/products", body: transform_params(params))
+      response = make_request(:post, "products", body: transform_params(params))
+   
       result = handle_response(response, "Marketplace A create")
 
       if result.success?
+        print(result.data)
         Result.new(
           success: true,
           data: {
@@ -21,6 +23,7 @@ module Marketplaces
         result
       end
     rescue RetryError => e
+      print(e)
       Result.new(
         success: false,
         error: e.message,

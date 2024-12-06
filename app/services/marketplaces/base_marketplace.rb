@@ -27,7 +27,7 @@ module Marketplaces
       when 200, 201
         Result.new(success: true, data: response.body)
       else
-        log_error("#{operation_name} failed with status #{response.status}")
+        # log_error("#{operation_name} failed with status #{response.status}")
         Result.new(
           success: false,
           error: "#{operation_name} failed with status #{response.status}",
@@ -39,7 +39,9 @@ module Marketplaces
     private
 
     def make_request(method, url, options = {})
+  
       with_retry(RETRY_OPTIONS) do
+      
         @connection.send(method) do |req|
           req.url url
           req.headers.merge!(options[:headers] || {})

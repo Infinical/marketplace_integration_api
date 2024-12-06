@@ -34,7 +34,8 @@ module Products
     private
 
     def validate_params
-      validator = ProductParamsValidator.new(@params)
+
+      validator = Validators::ProductParamsValidator.new(@params)
       @validation_result = validator.validate
     end
 
