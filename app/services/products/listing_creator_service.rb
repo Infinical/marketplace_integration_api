@@ -34,8 +34,8 @@ module Products
     private
 
     def validate_params
-
-      validator = Validators::ProductParamsValidator.new(@params)
+      transformed_params = transform_params(@params)
+      validator = Validators::ProductParamsValidator.new(transformed_params)
       @validation_result = validator.validate
     end
 
@@ -92,5 +92,18 @@ module Products
         )
       end
     end
+
+    private
+
+def transform_params(params)
+  {
+    title: params[:title].to_s.strip,
+    price_cents: params[:price_cents].to_s.delete(",").to_i,
+    seller_sku: params[:seller_sku].to_s.strip
+  }
+rescue => e
+  Rails.logger.error("Error transforming params: #{e.message}")
+  params
+end
   end
 end

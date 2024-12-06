@@ -44,7 +44,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
-  gem 'rspec-rails', '~> 7.1'
+  gem "rspec-rails", "~> 7.1"
   gem "webmock"
-  gem 'factory_bot_rails', require: false
+  gem "factory_bot_rails", require: false
 end

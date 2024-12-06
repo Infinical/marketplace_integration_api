@@ -7,7 +7,7 @@ module Marketplaces
 
     def create_listing(params)
       response = make_request(:post, "products", body: transform_params(params))
-   
+
       result = handle_response(response, "Marketplace A create")
 
       if result.success?
