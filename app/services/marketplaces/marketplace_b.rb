@@ -1,19 +1,22 @@
 module Marketplaces
   class MarketplaceB < BaseMarketplace
-    base_uri 'http://localhost:3002'
+    def initialize
+      super
+      @connection.url_prefix = "http://localhost:3002"
+    end
 
     def create_listing(params)
       inventory_result = create_inventory_item(params)
       return inventory_result if inventory_result.failure?
 
       publish_result = publish_listing(inventory_result.data[:inventory_id])
-      
+
       if publish_result.success?
         Result.new(
           success: true,
           data: {
             marketplace_id: publish_result.data[:listing_id],
-            marketplace: 'marketplace_b',
+            marketplace: "marketplace_b",
             inventory_id: inventory_result.data[:inventory_id]
           }
         )
@@ -22,7 +25,7 @@ module Marketplaces
           success: false,
           error: publish_result.error,
           context: {
-            marketplace: 'marketplace_b',
+            marketplace: "marketplace_b",
             inventory_id: inventory_result.data[:inventory_id],
             recoverable: true
           }
@@ -37,50 +40,48 @@ module Marketplaces
     private
 
     def create_inventory_item(params)
-      with_retry(operation_name: 'marketplace_b_create_inventory') do
-        response = self.class.post('/inventory', body: transform_params(params))
-        result = handle_response(response, 'Marketplace B inventory creation')
-        
-        if result.success?
-          Result.new(
-            success: true,
-            data: { inventory_id: result.data['inventory_id'] }
-          )
-        else
-          result
-        end
-      end
-    rescue RetryError => e
-      Result.new(success: false, error: e.message, context: { marketplace: 'marketplace_b' })
-    end
+      response = make_request(:post, "/inventory", body: transform_params(params))
+      result = handle_response(response, "Marketplace B inventory creation")
 
-    def publish_listing(inventory_id)
-      with_retry(operation_name: 'marketplace_b_publish') do
-        response = self.class.post("/inventory/#{inventory_id}/publish")
-        result = handle_response(response, 'Marketplace B publish')
-        
-        if result.success?
-          Result.new(
-            success: true,
-            data: { listing_id: result.data['listing_id'] }
-          )
-        else
-          result
-        end
+      if result.success?
+        Result.new(
+          success: true,
+          data: { inventory_id: result.data["inventory_id"] }
+        )
+      else
+        result
       end
     rescue RetryError => e
       Result.new(
         success: false,
         error: e.message,
-        context: { 
-          marketplace: 'marketplace_b',
+        context: { marketplace: "marketplace_b" }
+      )
+    end
+
+    def publish_listing(inventory_id)
+      response = make_request(:post, "/inventory/#{inventory_id}/publish")
+      result = handle_response(response, "Marketplace B publish")
+
+      if result.success?
+        Result.new(
+          success: true,
+          data: { listing_id: result.data["listing_id"] }
+        )
+      else
+        result
+      end
+    rescue RetryError => e
+      Result.new(
+        success: false,
+        error: e.message,
+        context: {
+          marketplace: "marketplace_b",
           inventory_id: inventory_id,
           recoverable: true
         }
       )
     end
-
-    private
 
     def transform_params(params)
       {

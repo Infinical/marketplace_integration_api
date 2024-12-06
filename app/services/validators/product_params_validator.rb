@@ -2,8 +2,8 @@ module Validators
   class ProductParamsValidator
     include Loggable
 
-    REQUIRED_FIELDS = [:title, :price_cents, :seller_sku]
-    
+    REQUIRED_FIELDS = [ :title, :price_cents, :seller_sku ]
+
     VALIDATIONS = {
       title: {
         presence: true,
@@ -12,7 +12,7 @@ module Validators
       },
       price_cents: {
         presence: true,
-        numericality: { 
+        numericality: {
           only_integer: true,
           greater_than: 0,
           less_than: 1_000_000_00  # $1,000,000 in cents
@@ -32,9 +32,9 @@ module Validators
 
     def validate
       return missing_params_result if missing_required_params?
-      
+
       validate_all_fields
-      
+
       if @errors.empty?
         Result.new(success: true, data: @params)
       else
@@ -43,7 +43,7 @@ module Validators
           success: false,
           error: "Validation failed",
           data: { errors: @errors },
-          context: { validation: 'product_params' }
+          context: { validation: "product_params" }
         )
       end
     end
@@ -60,7 +60,7 @@ module Validators
         success: false,
         error: "Missing required fields",
         data: { missing_fields: missing_fields },
-        context: { validation: 'product_params' }
+        context: { validation: "product_params" }
       )
     end
 
@@ -93,11 +93,11 @@ module Validators
 
     def validate_length(field, rules)
       value = @params[field].to_s
-      
+
       if rules[:minimum] && value.length < rules[:minimum]
         add_error(field, "is too short (minimum is #{rules[:minimum]} characters)")
       end
-      
+
       if rules[:maximum] && value.length > rules[:maximum]
         add_error(field, "is too long (maximum is #{rules[:maximum]} characters)")
       end
@@ -111,7 +111,7 @@ module Validators
 
     def validate_numericality(field, rules)
       value = @params[field]
-      
+
       unless value.is_a?(Integer)
         add_error(field, "must be an integer")
         return

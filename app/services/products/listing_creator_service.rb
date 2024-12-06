@@ -21,7 +21,7 @@ module Products
 
     def retry_failed_publish(marketplace:, inventory_id:)
       case marketplace
-      when 'marketplace_b'
+      when "marketplace_b"
         Marketplaces::MarketplaceB.new.retry_publish(inventory_id)
       else
         Result.new(
@@ -42,7 +42,7 @@ module Products
       @marketplaces.each do |marketplace|
         result = marketplace.create_listing(@params)
         @results[marketplace.class.name] = result
-        
+
         log_marketplace_result(marketplace.class.name, result)
       end
     end
@@ -50,7 +50,7 @@ module Products
     def aggregate_results
       successes = @results.select { |_, r| r.success? }
       failures = @results.select { |_, r| r.failure? }
-      
+
       if failures.empty?
         Result.new(
           success: true,
@@ -65,7 +65,7 @@ module Products
       Result.new(
         success: false,
         error: "Some marketplaces failed",
-        data: { 
+        data: {
           successful_marketplaces: successes.keys,
           failed_marketplaces: failures.transform_values { |r| r.error }
         },
@@ -78,7 +78,7 @@ module Products
 
     def log_marketplace_result(marketplace, result)
       if result.success?
-        log_info("Successfully created listing", 
+        log_info("Successfully created listing",
           marketplace: marketplace,
           marketplace_id: result.data[:marketplace_id]
         )

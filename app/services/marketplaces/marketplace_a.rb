@@ -1,26 +1,31 @@
 module Marketplaces
   class MarketplaceA < BaseMarketplace
-    base_uri 'http://localhost:3001/api'
+    def initialize
+      super
+      @connection.url_prefix = "http://localhost:3001/api"
+    end
 
     def create_listing(params)
-      with_retry(operation_name: 'marketplace_a_create') do
-        response = self.class.post('/products', body: transform_params(params))
-        result = handle_response(response, 'Marketplace A create')
-        
-        if result.success?
-          Result.new(
-            success: true,
-            data: {
-              marketplace_id: result.data['id'],
-              marketplace: 'marketplace_a'
-            }
-          )
-        else
-          result
-        end
+      response = make_request(:post, "/products", body: transform_params(params))
+      result = handle_response(response, "Marketplace A create")
+
+      if result.success?
+        Result.new(
+          success: true,
+          data: {
+            marketplace_id: result.data["id"],
+            marketplace: "marketplace_a"
+          }
+        )
+      else
+        result
       end
     rescue RetryError => e
-      Result.new(success: false, error: e.message, context: { marketplace: 'marketplace_a' })
+      Result.new(
+        success: false,
+        error: e.message,
+        context: { marketplace: "marketplace_a" }
+      )
     end
 
     private
